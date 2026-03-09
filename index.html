@@ -71,32 +71,16 @@
             <span class="close-btn" onclick="closeModal('modal-day-cases')">&times;</span>
             <h2 id="day-modal-title">日期</h2>
             <div id="day-cases-list">
-                </div>
-            <button id="btn-add-on-this-day" class="btn-primary" style="width:100%; margin-top:15px; background-color: #27ae60;">＋ 在這天新增案件</button>
+            </div>
+            <div id="modal-day-cases" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-day-cases')">&times;</span>
+                <h2 id="day-modal-title">日期</h2>
+                <div id="day-cases-list">
+                    </div>
+                <button id="btn-add-on-this-day" class="btn-primary" style="width:100%; margin-top:15px; background-color: #27ae60;">＋ 在這天新增案件</button>
+            </div>
         </div>
-    </div>
-
-    <div id="modal-reply" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-reply')">&times;</span>
-            <h2>更新案件狀態</h2>
-            <form id="form-reply-case">
-                <input type="hidden" id="edit-case-id"> <div class="form-group">
-                    <label>案件狀態</label>
-                    <select id="edit-status" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                        <option value="processing">⏳ 處理中</option>
-                        <option value="replied">✅ 已回覆</option>
-                        <option value="closed">📁 已結案</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>官方回覆內容</label>
-                    <textarea id="edit-reply-content" rows="6" placeholder="請將議員或 1999 的回覆貼在這裡..."></textarea>
-                </div>
-                
-                <button type="submit" class="btn-primary" style="width:100%; background-color: #27ae60;">💾 儲存更新</button>
-            </form>
         </div>
     </div>
 

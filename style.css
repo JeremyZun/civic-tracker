@@ -5,8 +5,6 @@
     --border: #e0e0e0;
     --text-main: #333;
     --danger: #e74c3c;
-    --submit-color: #f39c12; /* 送出案件的顏色 */
-    --deadline-color: #e74c3c; /* 到期日的顏色 */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,19 +26,41 @@ body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: 
 .calendar { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
 .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: #eee; text-align: center; padding: 10px 0; font-weight: bold; }
 .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-.day-cell { min-height: 100px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5px; cursor: pointer; transition: 0.2s; }
+
+/* 修改：為了讓線條相連，移除左右 padding */
+.day-cell { min-height: 110px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5px 0; cursor: pointer; transition: 0.2s; position: relative; }
 .day-cell:hover { background: #f9f9f9; }
 .day-cell.empty { background: #fafafa; cursor: default; }
-.day-number { font-weight: bold; margin-bottom: 5px; display: block; }
-.today .day-number { background: var(--primary); color: white; border-radius: 50%; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; }
 
-/* Event Indicators in Calendar */
-.event-tag { font-size: 0.75rem; padding: 3px 5px; border-radius: 3px; margin-bottom: 3px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tag-submit { background: var(--submit-color); }
-.tag-deadline { background: var(--deadline-color); }
+/* 日期數字的 padding 補回來 */
+.day-number { font-weight: bold; margin-bottom: 5px; display: block; padding: 0 8px; }
+.today .day-number { margin-left: 8px; padding: 0; background: var(--primary); color: white; border-radius: 50%; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* =========================================
+   新增：視覺化線條 (Gantt Chart 風格)
+   ========================================= */
+.event-bar-wrapper { padding: 2px 0; }
+.event-bar {
+    font-size: 0.75rem;
+    color: white;
+    height: 22px;
+    line-height: 22px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+.bar-start { margin-left: 5px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; padding-left: 8px; }
+.bar-middle { width: 100%; padding-left: 8px; }
+.bar-end { margin-right: 5px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; padding-left: 8px; }
+.bar-single { margin: 0 5px; border-radius: 4px; padding: 0 8px; }
+
+/* 顏色區分狀態 */
+.bar-processing { background-color: #e67e22; } /* 處理中：橘色 */
+.bar-replied { background-color: #27ae60; } /* 已回覆：綠色 */
 
 /* Forms & Modals */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100;}
 .modal:not(.hidden) { display: flex; }
 .modal-content { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 8px; position: relative; max-height: 90vh; overflow-y: auto;}
 .close-btn { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; }
@@ -48,37 +68,13 @@ body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: 
 .form-row { display: flex; gap: 15px; }
 .form-row .form-group { flex: 1; }
 label { display: block; margin-bottom: 5px; font-weight: bold; }
-input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
 
 /* Cases List in Modal */
-.case-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+.case-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 10px; margin-bottom: 15px; border-radius: 4px; }
 .case-item h4 { margin-bottom: 5px; }
-
-/* =========================================
-   新增：案件詳情內的文字框設計 (解決文字被截斷的問題)
-   ========================================= */
-.case-text-box {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    padding: 12px;
-    border-radius: 6px;
-    margin-top: 10px;
-    /* 限制最高高度，超過就會出現專屬捲動軸 */
-    max-height: 250px; 
-    overflow-y: auto;
-}
-
-.case-text-box.reply-box {
-    background: #e0f7fa; /* 給官方回覆一個淡淡的藍色背景作區隔 */
-    border-color: #b2ebf2;
-}
-
-/* 確保 JSON 裡的 \n 能被瀏覽器解析為真實的換行 */
-.pre-wrap {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-size: 0.95rem;
-    color: #444;
-    line-height: 1.6;
-    margin-top: 5px;
-}
+.case-text-box { background: #ffffff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 6px; margin-top: 10px; max-height: 250px; overflow-y: auto; }
+.case-text-box.reply-box { background: #e0f7fa; border-color: #b2ebf2; }
+.pre-wrap { white-space: pre-wrap; word-wrap: break-word; font-size: 0.95rem; color: #444; line-height: 1.6; margin-top: 5px; }
+.btn-danger { background-color: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.btn-danger:hover { background-color: #c0392b; }

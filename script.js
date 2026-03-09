@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-processing').innerText = cases.filter(c => c.status === 'processing').length;
     }
 
-    // 3. 渲染日曆
+    // 3. 渲染日曆 (改為視覺化線條邏輯)
     function renderCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth(); 
@@ -50,19 +50,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const today = new Date();
+        
+        // 將案件按送出日期排序，確保線條在日曆上排列整齊不會亂跳
+        const sortedCases = cases.slice().sort((a, b) => a.submitDate.localeCompare(b.submitDate));
+
         for (let day = 1; day <= lastDayDate; day++) {
             const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             
-            const dayEvents = cases.filter(c => c.submitDate === cellDateStr || c.expectedReplyDate === cellDateStr);
+            // ★ 核心變更：找出「這一天」涵蓋的所有案件（起始日 <= 這天 <= 結束日）
+            const dayEvents = sortedCases.filter(c => cellDateStr >= c.submitDate && cellDateStr <= c.expectedReplyDate);
             
             let tagsHTML = '';
             dayEvents.forEach(evt => {
-                if (evt.submitDate === cellDateStr) {
-                    tagsHTML += `<div class="event-tag tag-submit">📤 送出: ${evt.target}</div>`;
-                }
-                if (evt.expectedReplyDate === cellDateStr && evt.status === 'processing') {
-                    tagsHTML += `<div class="event-tag tag-deadline">⏰ 期限: ${evt.target}</div>`;
-                }
+                const isStart = (cellDateStr === evt.submitDate);
+                const isEnd = (cellDateStr === evt.expectedReplyDate);
+                
+                // 判斷線條要畫哪一段
+                let barClass = 'event-bar ';
+                if (isStart && isEnd) barClass += 'bar-single';
+                else if (isStart) barClass += 'bar-start';
+                else if (isEnd) barClass += 'bar-end';
+                else barClass += 'bar-middle';
+                
+                // 判斷顏色
+                let colorClass = 'bar-processing';
+                if(evt.status === 'replied' || evt.status === 'closed') colorClass = 'bar-replied';
+
+                // 只在開頭和結尾顯示文字，中間保持乾淨的線條
+                let label = '&nbsp;';
+                if (isStart) label = `📤 ${evt.target}`;
+                else if (isEnd) label = `🎯 期限`;
+
+                tagsHTML += `
+                <div class="event-bar-wrapper">
+                    <div class="${barClass} ${colorClass}" title="${evt.title}">${label}</div>
+                </div>`;
             });
 
             const isToday = (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) ? 'today' : '';
@@ -71,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.className = `day-cell ${isToday}`;
             cell.innerHTML = `<span class="day-number">${day}</span>${tagsHTML}`;
             
-            // 判斷當天有沒有案件，決定點擊的行為
+            // 點擊事件：如果這天有橫跨的案件就開啟清單，沒有就開啟新增案件
             cell.addEventListener('click', () => {
                 if (dayEvents.length === 0) {
                     openAddModal(cellDateStr);
@@ -101,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         submitInput.value = dateStr;
         
-        // 自動加 7 天
         const submitDateObj = new Date(dateStr);
         submitDateObj.setDate(submitDateObj.getDate() + 7);
         replyInput.value = submitDateObj.toISOString().split('T')[0];
@@ -110,15 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-add').classList.remove('hidden');
     }
 
-    // 5. 開啟該日詳情 Modal
+    // 5. 開啟該日詳情 Modal (加入刪除按鈕)
     function openDayModal(dateStr, dayEvents) {
-        document.getElementById('day-modal-title').innerText = `📅 ${dateStr} 案件紀錄`;
+        document.getElementById('day-modal-title').innerText = `📅 ${dateStr} 相關案件`;
         const listContainer = document.getElementById('day-cases-list');
         
         listContainer.innerHTML = dayEvents.map(evt => `
             <div class="case-item">
                 <h4>${evt.title}</h4>
                 <p><strong>對象:</strong> ${evt.target}</p>
+                <p><strong>期間:</strong> ${evt.submitDate} ~ ${evt.expectedReplyDate}</p>
                 <p><strong>狀態:</strong> ${evt.status === 'processing' ? '⏳ 處理中' : (evt.status === 'closed' ? '📁 已結案' : '✅ 已回覆')}</p>
                 
                 <div class="case-text-box">
@@ -133,7 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 ` : ''}
                 
-                <button class="btn-primary" style="margin-top: 15px; font-size: 0.85rem; padding: 6px 12px; background-color: #f39c12;" onclick="openReplyModal('${evt.id}')">✏️ 更新進度 / 填寫回覆</button>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn-primary" style="background-color: #f39c12; flex: 1;" onclick="openReplyModal('${evt.id}')">✏️ 更新進度</button>
+                    <button class="btn-danger" onclick="deleteCase('${evt.id}')">🗑️ 刪除</button>
+                </div>
             </div>
         `).join('');
         
@@ -144,6 +169,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('modal-day-cases').classList.remove('hidden');
     }
+
+    // ★ 新增：刪除案件邏輯
+    window.deleteCase = function(id) {
+        if (confirm('確定要刪除這個案件嗎？這個動作無法復原喔！')) {
+            cases = cases.filter(c => c.id !== id);
+            localStorage.setItem('civic_cases', JSON.stringify(cases));
+            
+            updateStats();
+            renderCalendar();
+            closeModal('modal-day-cases');
+            alert('案件已成功刪除！');
+        }
+    };
 
     // 6. Topbar 按鈕：預設帶入今天
     document.getElementById('btn-open-add').addEventListener('click', () => {
@@ -181,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
         closeModal('modal-add');
         e.target.reset();
-        alert('案件新增成功！');
     });
 
     // 9. 開啟「更新進度」的 Modal
@@ -216,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCalendar();
             
             closeModal('modal-reply');
-            alert('🎉 案件狀態更新成功！');
         }
     });
 
