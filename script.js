@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 cases = data;
                 localStorage.setItem('civic_cases', JSON.stringify(cases));
                 initApp();
+            })
+            .catch(err => {
+                console.log('無法讀取 data.json，以空陣列啟動', err);
+                initApp();
             });
     }
 
@@ -67,13 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.className = `day-cell ${isToday}`;
             cell.innerHTML = `<span class="day-number">${day}</span>${tagsHTML}`;
             
-            // ★ 核心變更：判斷當天有沒有案件
+            // 判斷當天有沒有案件，決定點擊的行為
             cell.addEventListener('click', () => {
                 if (dayEvents.length === 0) {
-                    // 如果是空日期，直接開啟新增案件彈窗，並帶入該日期
                     openAddModal(cellDateStr);
                 } else {
-                    // 如果有案件，打開清單 Modal
                     openDayModal(cellDateStr, dayEvents);
                 }
             });
@@ -92,34 +94,32 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
     });
 
-    // 4. 開啟新增案件彈窗 (獨立成一個函數)
+    // 4. 開啟新增案件彈窗
     window.openAddModal = function(dateStr) {
         const submitInput = document.getElementById('input-submit-date');
         const replyInput = document.getElementById('input-reply-date');
         
         submitInput.value = dateStr;
         
-        // 自動幫預估回覆日加上 7 天 (但允許使用者手動修改)
+        // 自動加 7 天
         const submitDateObj = new Date(dateStr);
         submitDateObj.setDate(submitDateObj.getDate() + 7);
         replyInput.value = submitDateObj.toISOString().split('T')[0];
 
-        // 隱藏可能開啟的清單 Modal，顯示新增 Modal
         document.getElementById('modal-day-cases').classList.add('hidden');
         document.getElementById('modal-add').classList.remove('hidden');
     }
 
-// 5. 開啟該日詳情 Modal
+    // 5. 開啟該日詳情 Modal
     function openDayModal(dateStr, dayEvents) {
         document.getElementById('day-modal-title').innerText = `📅 ${dateStr} 案件紀錄`;
         const listContainer = document.getElementById('day-cases-list');
         
-        // 這裡移除了原本的 substring(0, 50)，並加上了剛才寫好的 case-text-box 樣式
         listContainer.innerHTML = dayEvents.map(evt => `
             <div class="case-item">
                 <h4>${evt.title}</h4>
                 <p><strong>對象:</strong> ${evt.target}</p>
-                <p><strong>狀態:</strong> ${evt.status === 'processing' ? '⏳ 處理中' : '✅ 已回覆'}</p>
+                <p><strong>狀態:</strong> ${evt.status === 'processing' ? '⏳ 處理中' : (evt.status === 'closed' ? '📁 已結案' : '✅ 已回覆')}</p>
                 
                 <div class="case-text-box">
                     <strong>📝 陳情內容:</strong>
@@ -132,10 +132,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="pre-wrap">${evt.reply}</div>
                 </div>
                 ` : ''}
+                
+                <button class="btn-primary" style="margin-top: 15px; font-size: 0.85rem; padding: 6px 12px; background-color: #f39c12;" onclick="openReplyModal('${evt.id}')">✏️ 更新進度 / 填寫回覆</button>
             </div>
         `).join('');
         
-        // 設定「在這天新增案件」按鈕的行為
         const btnAddHere = document.getElementById('btn-add-on-this-day');
         if(btnAddHere) {
             btnAddHere.onclick = () => openAddModal(dateStr);
@@ -152,12 +153,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 7. 當送出日期被手動更改時，連動更新預估回覆日 (+7天)
     document.getElementById('input-submit-date').addEventListener('change', (e) => {
+        if(!e.target.value) return;
         const newSubmitDate = new Date(e.target.value);
         newSubmitDate.setDate(newSubmitDate.getDate() + 7);
         document.getElementById('input-reply-date').value = newSubmitDate.toISOString().split('T')[0];
     });
 
-    // 8. 表單送出事件
+    // 8. 表單送出事件 (新增案件)
     document.getElementById('form-add-case').addEventListener('submit', (e) => {
         e.preventDefault();
         
@@ -180,6 +182,42 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal('modal-add');
         e.target.reset();
         alert('案件新增成功！');
+    });
+
+    // 9. 開啟「更新進度」的 Modal
+    window.openReplyModal = function(id) {
+        const item = cases.find(c => c.id === id);
+        if(!item) return;
+
+        document.getElementById('edit-case-id').value = item.id;
+        document.getElementById('edit-status').value = item.status;
+        document.getElementById('edit-reply-content').value = item.reply || '';
+
+        document.getElementById('modal-day-cases').classList.add('hidden');
+        document.getElementById('modal-reply').classList.remove('hidden');
+    };
+
+    // 10. 處理「更新進度」的表單送出
+    document.getElementById('form-reply-case').addEventListener('submit', (e) => {
+        e.preventDefault(); 
+        
+        const id = document.getElementById('edit-case-id').value;
+        const newStatus = document.getElementById('edit-status').value;
+        const newReply = document.getElementById('edit-reply-content').value;
+
+        const index = cases.findIndex(c => c.id === id);
+        if(index !== -1) {
+            cases[index].status = newStatus;
+            cases[index].reply = newReply;
+            
+            localStorage.setItem('civic_cases', JSON.stringify(cases));
+            
+            updateStats();
+            renderCalendar();
+            
+            closeModal('modal-reply');
+            alert('🎉 案件狀態更新成功！');
+        }
     });
 
     // 關閉 Modal
