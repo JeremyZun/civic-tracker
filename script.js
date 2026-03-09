@@ -109,23 +109,37 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-add').classList.remove('hidden');
     }
 
-    // 5. 開啟該日詳情 Modal
+// 5. 開啟該日詳情 Modal
     function openDayModal(dateStr, dayEvents) {
         document.getElementById('day-modal-title').innerText = `📅 ${dateStr} 案件紀錄`;
         const listContainer = document.getElementById('day-cases-list');
         
+        // 這裡移除了原本的 substring(0, 50)，並加上了剛才寫好的 case-text-box 樣式
         listContainer.innerHTML = dayEvents.map(evt => `
             <div class="case-item">
                 <h4>${evt.title}</h4>
                 <p><strong>對象:</strong> ${evt.target}</p>
                 <p><strong>狀態:</strong> ${evt.status === 'processing' ? '⏳ 處理中' : '✅ 已回覆'}</p>
-                <p style="font-size:0.9rem; color:#666; margin-top:5px;">${evt.content.substring(0, 50)}...</p>
+                
+                <div class="case-text-box">
+                    <strong>📝 陳情內容:</strong>
+                    <div class="pre-wrap">${evt.content}</div>
+                </div>
+                
+                ${evt.reply ? `
+                <div class="case-text-box reply-box">
+                    <strong>💬 官方回覆:</strong>
+                    <div class="pre-wrap">${evt.reply}</div>
+                </div>
+                ` : ''}
             </div>
         `).join('');
         
         // 設定「在這天新增案件」按鈕的行為
         const btnAddHere = document.getElementById('btn-add-on-this-day');
-        btnAddHere.onclick = () => openAddModal(dateStr);
+        if(btnAddHere) {
+            btnAddHere.onclick = () => openAddModal(dateStr);
+        }
 
         document.getElementById('modal-day-cases').classList.remove('hidden');
     }

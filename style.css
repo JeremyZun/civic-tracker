@@ -53,3 +53,32 @@ input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radi
 /* Cases List in Modal */
 .case-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 10px; margin-bottom: 10px; border-radius: 4px; }
 .case-item h4 { margin-bottom: 5px; }
+
+/* =========================================
+   新增：案件詳情內的文字框設計 (解決文字被截斷的問題)
+   ========================================= */
+.case-text-box {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+    /* 限制最高高度，超過就會出現專屬捲動軸 */
+    max-height: 250px; 
+    overflow-y: auto;
+}
+
+.case-text-box.reply-box {
+    background: #e0f7fa; /* 給官方回覆一個淡淡的藍色背景作區隔 */
+    border-color: #b2ebf2;
+}
+
+/* 確保 JSON 裡的 \n 能被瀏覽器解析為真實的換行 */
+.pre-wrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.6;
+    margin-top: 5px;
+}
