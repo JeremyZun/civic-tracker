@@ -5,76 +5,79 @@
     --border: #e0e0e0;
     --text-main: #333;
     --danger: #e74c3c;
+    --success: #27ae60;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-main); }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-main); }
 .container { max-width: 1000px; margin: 0 auto; padding: 0 15px; }
 
 /* Topbar */
-.navbar { background: var(--primary); color: white; padding: 15px 0; }
+.navbar { background: var(--primary); color: white; padding: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 .nav-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-.logo { font-size: 1.5rem; }
+.logo { font-size: 1.5rem; letter-spacing: 0.5px; }
 .nav-stats { display: flex; gap: 20px; font-size: 1.1rem; }
 .nav-stats .highlight { color: #f1c40f; }
-.btn-primary { background: var(--secondary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: bold;}
+.btn-primary { background: var(--secondary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: background-color 0.2s;}
 .btn-primary:hover { background: #2980b9; }
 
 /* Calendar */
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
-.btn-icon { background: white; border: 1px solid var(--border); padding: 5px 15px; cursor: pointer; border-radius: 5px; font-size: 1.2rem;}
-.calendar { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
-.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: #eee; text-align: center; padding: 10px 0; font-weight: bold; }
+.btn-icon { background: white; border: 1px solid var(--border); padding: 5px 15px; cursor: pointer; border-radius: 5px; font-size: 1.2rem; transition: background-color 0.2s; }
+.btn-icon:hover { background: #eee; }
+.calendar { background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: #eee; text-align: center; padding: 12px 0; font-weight: bold; color: #555; }
 .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
 
-/* 修改：為了讓線條相連，移除左右 padding */
-.day-cell { min-height: 110px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5px 0; cursor: pointer; transition: 0.2s; position: relative; }
-.day-cell:hover { background: #f9f9f9; }
+.day-cell { min-height: 110px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5px 0; cursor: pointer; transition: background-color 0.2s; position: relative; }
+.day-cell:hover { background: #f0f8ff; /* 加上淺藍色 Hover 效果，讓點擊區域更明顯 */ }
 .day-cell.empty { background: #fafafa; cursor: default; }
+.day-cell.empty:hover { background: #fafafa; }
 
-/* 日期數字的 padding 補回來 */
-.day-number { font-weight: bold; margin-bottom: 5px; display: block; padding: 0 8px; }
-.today .day-number { margin-left: 8px; padding: 0; background: var(--primary); color: white; border-radius: 50%; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; }
+.day-number { font-weight: bold; margin-bottom: 5px; display: block; padding: 0 8px; color: #666;}
+.today .day-number { margin-left: 8px; padding: 0; background: var(--primary); color: white; border-radius: 50%; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-/* =========================================
-   新增：視覺化線條 (Gantt Chart 風格)
-   ========================================= */
+/* Gantt Chart Bars */
 .event-bar-wrapper { padding: 2px 0; }
-.event-bar {
-    font-size: 0.75rem;
-    color: white;
-    height: 22px;
-    line-height: 22px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-weight: bold;
-}
+.event-bar { font-size: 0.75rem; color: white; height: 22px; line-height: 22px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 .bar-start { margin-left: 5px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; padding-left: 8px; }
 .bar-middle { width: 100%; padding-left: 8px; }
 .bar-end { margin-right: 5px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; padding-left: 8px; }
 .bar-single { margin: 0 5px; border-radius: 4px; padding: 0 8px; }
 
-/* 顏色區分狀態 */
-.bar-processing { background-color: #e67e22; } /* 處理中：橘色 */
-.bar-replied { background-color: #27ae60; } /* 已回覆：綠色 */
+.bar-processing { background-color: #e67e22; } 
+.bar-replied { background-color: var(--success); } 
 
-/* Forms & Modals */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100;}
-.modal:not(.hidden) { display: flex; }
-.modal-content { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 8px; position: relative; max-height: 90vh; overflow-y: auto;}
-.close-btn { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; }
+/* Modals */
+/* ★ 新增：淡入動畫 */
+.modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 100; opacity: 1; transition: opacity 0.2s ease-in-out; }
+.modal.hidden { opacity: 0; pointer-events: none; }
+.modal-content { background: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 12px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: translateY(0); transition: transform 0.2s ease-in-out; }
+.modal.hidden .modal-content { transform: translateY(-20px); }
+
+.close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #888; transition: color 0.2s;}
+.close-btn:hover { color: #333; }
 .form-group { margin-bottom: 15px; }
 .form-row { display: flex; gap: 15px; }
 .form-row .form-group { flex: 1; }
-label { display: block; margin-bottom: 5px; font-weight: bold; }
-input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem;}
 
-/* Cases List in Modal */
-.case-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-.case-item h4 { margin-bottom: 5px; }
-.case-text-box { background: #ffffff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 6px; margin-top: 10px; max-height: 250px; overflow-y: auto; }
+/* ★ 新增：表單輸入框美化與 Focus 光暈 */
+input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+
+/* Cases List */
+.case-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 15px; margin-bottom: 15px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
+.case-item h4 { margin-bottom: 8px; color: var(--primary); }
+.case-text-box { background: #ffffff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 6px; margin-top: 10px; max-height: 200px; overflow-y: auto; }
 .case-text-box.reply-box { background: #e0f7fa; border-color: #b2ebf2; }
 .pre-wrap { white-space: pre-wrap; word-wrap: break-word; font-size: 0.95rem; color: #444; line-height: 1.6; margin-top: 5px; }
-.btn-danger { background-color: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+/* ★ 新增：美化 Scrollbar (僅適用於 webkit 瀏覽器) */
+.case-text-box::-webkit-scrollbar, .modal-content::-webkit-scrollbar { width: 8px; }
+.case-text-box::-webkit-scrollbar-track, .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+.case-text-box::-webkit-scrollbar-thumb, .modal-content::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+.case-text-box::-webkit-scrollbar-thumb:hover, .modal-content::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+.btn-danger { background-color: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.2s;}
 .btn-danger:hover { background-color: #c0392b; }

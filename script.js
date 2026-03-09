@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-processing').innerText = cases.filter(c => c.status === 'processing').length;
     }
 
-    // 3. 渲染日曆 (改為視覺化線條邏輯)
+    // 3. 渲染日曆
     function renderCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth(); 
@@ -50,14 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const today = new Date();
-        
-        // 將案件按送出日期排序，確保線條在日曆上排列整齊不會亂跳
         const sortedCases = cases.slice().sort((a, b) => a.submitDate.localeCompare(b.submitDate));
 
         for (let day = 1; day <= lastDayDate; day++) {
             const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             
-            // ★ 核心變更：找出「這一天」涵蓋的所有案件（起始日 <= 這天 <= 結束日）
             const dayEvents = sortedCases.filter(c => cellDateStr >= c.submitDate && cellDateStr <= c.expectedReplyDate);
             
             let tagsHTML = '';
@@ -65,18 +62,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isStart = (cellDateStr === evt.submitDate);
                 const isEnd = (cellDateStr === evt.expectedReplyDate);
                 
-                // 判斷線條要畫哪一段
                 let barClass = 'event-bar ';
                 if (isStart && isEnd) barClass += 'bar-single';
                 else if (isStart) barClass += 'bar-start';
                 else if (isEnd) barClass += 'bar-end';
                 else barClass += 'bar-middle';
                 
-                // 判斷顏色
                 let colorClass = 'bar-processing';
                 if(evt.status === 'replied' || evt.status === 'closed') colorClass = 'bar-replied';
 
-                // 只在開頭和結尾顯示文字，中間保持乾淨的線條
                 let label = '&nbsp;';
                 if (isStart) label = `📤 ${evt.target}`;
                 else if (isEnd) label = `🎯 期限`;
@@ -93,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.className = `day-cell ${isToday}`;
             cell.innerHTML = `<span class="day-number">${day}</span>${tagsHTML}`;
             
-            // 點擊事件：如果這天有橫跨的案件就開啟清單，沒有就開啟新增案件
             cell.addEventListener('click', () => {
                 if (dayEvents.length === 0) {
                     openAddModal(cellDateStr);
@@ -123,6 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         submitInput.value = dateStr;
         
+        // ★ 新增 UX：防止回覆日設得比送出日還要早
+        replyInput.min = dateStr; 
+
         const submitDateObj = new Date(dateStr);
         submitDateObj.setDate(submitDateObj.getDate() + 7);
         replyInput.value = submitDateObj.toISOString().split('T')[0];
@@ -131,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-add').classList.remove('hidden');
     }
 
-    // 5. 開啟該日詳情 Modal (加入刪除按鈕)
+    // 5. 開啟該日詳情 Modal
     function openDayModal(dateStr, dayEvents) {
         document.getElementById('day-modal-title').innerText = `📅 ${dateStr} 相關案件`;
         const listContainer = document.getElementById('day-cases-list');
@@ -170,16 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-day-cases').classList.remove('hidden');
     }
 
-    // ★ 新增：刪除案件邏輯
+    // 刪除案件
     window.deleteCase = function(id) {
         if (confirm('確定要刪除這個案件嗎？這個動作無法復原喔！')) {
             cases = cases.filter(c => c.id !== id);
             localStorage.setItem('civic_cases', JSON.stringify(cases));
-            
             updateStats();
             renderCalendar();
             closeModal('modal-day-cases');
-            alert('案件已成功刪除！');
         }
     };
 
@@ -189,15 +183,19 @@ document.addEventListener('DOMContentLoaded', () => {
         openAddModal(todayStr);
     });
 
-    // 7. 當送出日期被手動更改時，連動更新預估回覆日 (+7天)
+    // 7. 當送出日期改變時，連動更新預估回覆日，並限制最小日期
     document.getElementById('input-submit-date').addEventListener('change', (e) => {
         if(!e.target.value) return;
         const newSubmitDate = new Date(e.target.value);
+        
+        // ★ 防呆：更新 input-reply-date 的可選最小日期
+        document.getElementById('input-reply-date').min = e.target.value;
+
         newSubmitDate.setDate(newSubmitDate.getDate() + 7);
         document.getElementById('input-reply-date').value = newSubmitDate.toISOString().split('T')[0];
     });
 
-    // 8. 表單送出事件 (新增案件)
+    // 8. 表單送出事件 (新增)
     document.getElementById('form-add-case').addEventListener('submit', (e) => {
         e.preventDefault();
         
@@ -221,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.reset();
     });
 
-    // 9. 開啟「更新進度」的 Modal
+    // 9. 開啟「更新進度」
     window.openReplyModal = function(id) {
         const item = cases.find(c => c.id === id);
         if(!item) return;
@@ -234,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-reply').classList.remove('hidden');
     };
 
-    // 10. 處理「更新進度」的表單送出
+    // 10. 處理「更新進度」送出
     document.getElementById('form-reply-case').addEventListener('submit', (e) => {
         e.preventDefault(); 
         
@@ -251,13 +249,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateStats();
             renderCalendar();
-            
             closeModal('modal-reply');
         }
     });
 
-    // 關閉 Modal
+    // 11. 關閉 Modal 的函數
     window.closeModal = function(modalId) {
         document.getElementById(modalId).classList.add('hidden');
     };
+
+    // ★ 新增 UX：點擊 Modal 外圍的灰色半透明區域，自動關閉 Modal
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.classList.add('hidden');
+        }
+    });
 });
