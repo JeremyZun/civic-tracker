@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Civic Tracker | 企業級陳情追蹤系統</title>
+    <title>Civic Tracker | 現代追蹤系統</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="navbar">
-        <div class="container nav-content">
+    <header class="navbar container">
+        <div class="nav-content">
             <h1 class="logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                Civic Tracker
+                <span class="logo-icon">📍</span> Civic Tracker
             </h1>
-            <div class="nav-stats">
-                <span>總案件 <b id="stat-total" class="badge-neutral">0</b></span>
-                <span>處理中 <b id="stat-processing" class="badge-warning">0</b></span>
+            <div class="nav-actions">
+                <div class="nav-stats">
+                    <div class="stat-pill">總計 <b id="stat-total">0</b></div>
+                    <div class="stat-pill processing">處理中 <b id="stat-processing">0</b></div>
+                </div>
+                <button id="theme-toggle" class="icon-btn theme-btn" aria-label="切換深淺色">
+                    <svg id="icon-sun" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg id="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <button id="btn-open-add" class="btn-primary">＋ 新增</button>
             </div>
-            <button id="btn-open-add" class="btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                新增案件
-            </button>
         </div>
     </header>
 
     <main class="container">
         <div class="calendar-header">
-            <button id="btn-prev-month" class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <button id="btn-prev-month" class="icon-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
             <h2 id="current-month-year" class="month-title">2026年 3月</h2>
-            <button id="btn-next-month" class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+            <button id="btn-next-month" class="icon-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
         </div>
 
         <div class="calendar-card">
@@ -44,36 +46,33 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>新增陳情專案</h2>
+                <h2>✨ 新增陳情</h2>
                 <button class="close-btn" onclick="closeModal('modal-add')">&times;</button>
             </div>
             <form id="form-add-case" class="modal-body">
                 <div class="form-group">
-                    <label>專案主旨</label>
-                    <input type="text" id="input-title" required placeholder="例如：安居街水溝蓋修繕工程">
+                    <label>案件主旨</label>
+                    <input type="text" id="input-title" required placeholder="例如：安居街水溝蓋修繕">
                 </div>
                 <div class="form-group">
-                    <label>負責單位 / 陳情對象</label>
-                    <input type="text" id="input-target" required placeholder="例如：台北市政府新工處 / 1999">
+                    <label>陳情對象</label>
+                    <input type="text" id="input-target" required placeholder="例如：市府新工處">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>立案日期</label>
+                        <label>送出日期</label>
                         <input type="date" id="input-submit-date" required>
                     </div>
                     <div class="form-group">
-                        <label>預估結案/回覆日</label>
+                        <label>預估回覆日</label>
                         <input type="date" id="input-reply-date" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>專案內容描述</label>
-                    <textarea id="input-content" rows="5" required placeholder="請詳細描述案件狀況..."></textarea>
+                    <label>詳細內容</label>
+                    <textarea id="input-content" rows="4" required placeholder="記錄你的陳情內文..."></textarea>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeModal('modal-add')">取消</button>
-                    <button type="submit" class="btn-primary">建立專案</button>
-                </div>
+                <button type="submit" class="btn-primary w-100">儲存案件</button>
             </form>
         </div>
     </div>
@@ -82,18 +81,15 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-lg">
             <div class="modal-header">
-                <h2 id="day-modal-title">日期紀錄</h2>
+                <h2 id="day-modal-title">📅 日期紀錄</h2>
                 <button class="close-btn" onclick="closeModal('modal-day-cases')">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="day-cases-list" class="cases-list-container">
                     </div>
             </div>
-            <div class="modal-footer" style="justify-content: flex-start;">
-                <button id="btn-add-on-this-day" class="btn-outline">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    於此日期新增專案
-                </button>
+            <div class="modal-footer">
+                <button id="btn-add-on-this-day" class="btn-secondary w-100">＋ 在這天新增案件</button>
             </div>
         </div>
     </div>
@@ -102,36 +98,33 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>更新專案進度</h2>
+                <h2>📝 更新進度</h2>
                 <button class="close-btn" onclick="closeModal('modal-reply')">&times;</button>
             </div>
             <form id="form-reply-case" class="modal-body">
                 <input type="hidden" id="edit-case-id"> 
                 
                 <div class="form-row">
-                    <div class="form-group" style="flex: 1;">
+                    <div class="form-group">
                         <label>當前狀態</label>
                         <select id="edit-status">
-                            <option value="processing">進行中 (Processing)</option>
-                            <option value="replied">已回覆 (Replied)</option>
-                            <option value="closed">已結案 (Closed)</option>
+                            <option value="processing">⏳ 處理中</option>
+                            <option value="replied">✅ 已回覆</option>
+                            <option value="closed">📁 已結案</option>
                         </select>
                     </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>預估結案/回覆日 (可展延)</label>
+                    <div class="form-group">
+                        <label>預估回覆日 (展延)</label>
                         <input type="date" id="edit-reply-date" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label>官方回覆紀錄</label>
-                    <textarea id="edit-reply-content" rows="6" placeholder="貼上官方回信或最新進度說明..."></textarea>
+                    <label>官方回覆內容</label>
+                    <textarea id="edit-reply-content" rows="6" placeholder="貼上最新進度說明..."></textarea>
                 </div>
                 
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeModal('modal-reply')">取消</button>
-                    <button type="submit" class="btn-success">儲存變更</button>
-                </div>
+                <button type="submit" class="btn-primary w-100">儲存更新</button>
             </form>
         </div>
     </div>

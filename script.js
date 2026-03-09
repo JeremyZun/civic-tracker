@@ -2,6 +2,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let cases = [];
     let currentDate = new Date();
 
+    // ★ 主題切換邏輯
+    const themeToggle = document.getElementById('theme-toggle');
+    const iconSun = document.getElementById('icon-sun');
+    const iconMoon = document.getElementById('icon-moon');
+    
+    // 從 localStorage 讀取主題，預設為淺色
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeIcon(currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+        let theme = document.documentElement.getAttribute('data-theme');
+        let newTheme = theme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+        if(theme === 'dark') {
+            iconSun.classList.remove('hidden');
+            iconMoon.classList.add('hidden');
+        } else {
+            iconSun.classList.add('hidden');
+            iconMoon.classList.remove('hidden');
+        }
+    }
+
     // 1. 初始化資料
     const storedData = localStorage.getItem('civic_cases');
     if (storedData) {
@@ -16,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 initApp();
             })
             .catch(err => {
-                console.log('無法讀取 data.json，以空陣列啟動', err);
+                console.log('無法讀取 data.json，以空陣列啟動');
                 initApp();
             });
     }
@@ -54,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (let day = 1; day <= lastDayDate; day++) {
             const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            
             const dayEvents = sortedCases.filter(c => cellDateStr >= c.submitDate && cellDateStr <= c.expectedReplyDate);
             
             let tagsHTML = '';
@@ -99,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 日曆翻頁
     document.getElementById('btn-prev-month').addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
         renderCalendar();
@@ -127,41 +153,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. 開啟該日詳情 Modal
     function openDayModal(dateStr, dayEvents) {
-        document.getElementById('day-modal-title').innerText = `${dateStr} 專案紀錄`;
+        document.getElementById('day-modal-title').innerText = `📅 ${dateStr} 紀錄`;
         const listContainer = document.getElementById('day-cases-list');
         
         listContainer.innerHTML = dayEvents.map(evt => {
-            let statusBadge = '';
-            if(evt.status === 'processing') statusBadge = '<span class="status-badge badge-warning">進行中</span>';
-            else if(evt.status === 'replied') statusBadge = '<span class="status-badge badge-success">已回覆</span>';
-            else statusBadge = '<span class="status-badge badge-neutral">已結案</span>';
+            let statusText = evt.status === 'processing' ? '⏳ 處理中' : (evt.status === 'replied' ? '✅ 已回覆' : '📁 已結案');
+            let statusClass = evt.status === 'processing' ? 'processing' : 'replied';
 
             return `
             <div class="case-card">
                 <div class="case-card-header">
                     <h4 class="case-title">${evt.title}</h4>
-                    <div class="case-actions">
-                        <button class="icon-btn text-primary" onclick="openReplyModal('${evt.id}')" title="更新進度"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                        <button class="icon-btn text-danger" onclick="deleteCase('${evt.id}')" title="刪除案件"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                    </div>
+                    <span class="status-pill ${statusClass}">${statusText}</span>
                 </div>
                 <div class="case-meta">
-                    <span><strong>負責單位:</strong> ${evt.target}</span>
-                    <span><strong>排程:</strong> ${evt.submitDate} ➔ ${evt.expectedReplyDate}</span>
-                    <span><strong>狀態:</strong> ${statusBadge}</span>
+                    <p>🎯 對象：${evt.target}</p>
+                    <p>⏱️ 期間：${evt.submitDate} ➔ ${evt.expectedReplyDate}</p>
                 </div>
                 
                 <div class="case-text-box">
-                    <div class="box-title">專案內容描述</div>
                     <div class="pre-wrap">${evt.content}</div>
                 </div>
                 
                 ${evt.reply ? `
                 <div class="case-text-box reply-box">
-                    <div class="box-title text-success">官方回覆 / 執行紀錄</div>
-                    <div class="pre-wrap">${evt.reply}</div>
+                    <strong>💬 官方回覆：</strong>
+                    <div class="pre-wrap" style="margin-top:8px;">${evt.reply}</div>
                 </div>
                 ` : ''}
+                
+                <div class="case-actions">
+                    <button class="btn-secondary flex-1" onclick="openReplyModal('${evt.id}')">📝 更新</button>
+                    <button class="btn-danger" onclick="deleteCase('${evt.id}')">刪除</button>
+                </div>
             </div>
         `}).join('');
         
@@ -175,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 刪除案件
     window.deleteCase = function(id) {
-        if (confirm('確定要移除此專案紀錄嗎？操作無法復原。')) {
+        if (confirm('確定要移除此紀錄嗎？')) {
             cases = cases.filter(c => c.id !== id);
             localStorage.setItem('civic_cases', JSON.stringify(cases));
             updateStats();
@@ -190,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         openAddModal(todayStr);
     });
 
-    // 7. 新增案件：連動更新預估回覆日
+    // 7. 新增案件連動日期
     document.getElementById('input-submit-date').addEventListener('change', (e) => {
         if(!e.target.value) return;
         const newSubmitDate = new Date(e.target.value);
@@ -199,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('input-reply-date').value = newSubmitDate.toISOString().split('T')[0];
     });
 
-    // 8. 表單送出事件 (新增)
+    // 8. 表單送出 (新增)
     document.getElementById('form-add-case').addEventListener('submit', (e) => {
         e.preventDefault();
         const newCase = {
@@ -220,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.reset();
     });
 
-    // 9. 開啟「更新進度」 (★ 核心變更：帶入並允許修改預期回覆日)
+    // 9. 開啟「更新進度」
     window.openReplyModal = function(id) {
         const item = cases.find(c => c.id === id);
         if(!item) return;
@@ -229,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-status').value = item.status;
         document.getElementById('edit-reply-content').value = item.reply || '';
         
-        // 帶入舊的預估日期，並設定最小值為立案日期，防止時空錯亂
         const editDateInput = document.getElementById('edit-reply-date');
         editDateInput.value = item.expectedReplyDate;
         editDateInput.min = item.submitDate;
@@ -238,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-reply').classList.remove('hidden');
     };
 
-    // 10. 處理「更新進度」送出 (★ 核心變更：儲存新的預期回覆日)
+    // 10. 表單送出 (更新)
     document.getElementById('form-reply-case').addEventListener('submit', (e) => {
         e.preventDefault(); 
         
@@ -250,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const index = cases.findIndex(c => c.id === id);
         if(index !== -1) {
             cases[index].status = newStatus;
-            cases[index].expectedReplyDate = newReplyDate; // 更新展延日期
+            cases[index].expectedReplyDate = newReplyDate;
             cases[index].reply = newReply;
             
             localStorage.setItem('civic_cases', JSON.stringify(cases));
@@ -260,12 +283,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 11. 關閉 Modal 的函數
+    // 11. 關閉 Modal
     window.closeModal = function(modalId) {
         document.getElementById(modalId).classList.add('hidden');
     };
 
-    // 點擊 Modal 背景自動關閉
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal-backdrop')) {
             e.target.parentElement.classList.add('hidden');
