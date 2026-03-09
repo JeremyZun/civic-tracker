@@ -1,83 +1,141 @@
+/* 企業級色彩與排版計畫 (Enterprise Design System) */
 :root {
-    --primary: #2c3e50;
-    --secondary: #3498db;
-    --bg-color: #f4f7f6;
-    --border: #e0e0e0;
-    --text-main: #333;
-    --danger: #e74c3c;
-    --success: #27ae60;
+    --primary: #0f172a;        /* Slate 900 - 沉穩深藍 */
+    --primary-hover: #1e293b; 
+    --secondary: #3b82f6;      /* Blue 500 - 專業主色調 */
+    --secondary-hover: #2563eb;
+    --success: #10b981;        /* Emerald 500 */
+    --success-hover: #059669;
+    --warning: #f59e0b;        /* Amber 500 */
+    --danger: #ef4444;         /* Red 500 */
+    
+    --bg-app: #f8fafc;         /* Slate 50 - 應用程式底色 */
+    --bg-surface: #ffffff;     /* 卡片底色 */
+    --border: #e2e8f0;         /* 柔和邊框 */
+    
+    --text-main: #1e293b;      /* Slate 800 - 主要文字 */
+    --text-muted: #64748b;     /* Slate 500 - 輔助文字 */
+    
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-main); }
-.container { max-width: 1000px; margin: 0 auto; padding: 0 15px; }
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+    background: var(--bg-app); 
+    color: var(--text-main); 
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
-/* Topbar */
-.navbar { background: var(--primary); color: white; padding: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.nav-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-.logo { font-size: 1.5rem; letter-spacing: 0.5px; }
-.nav-stats { display: flex; gap: 20px; font-size: 1.1rem; }
-.nav-stats .highlight { color: #f1c40f; }
-.btn-primary { background: var(--secondary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: background-color 0.2s;}
-.btn-primary:hover { background: #2980b9; }
+/* --- Topbar --- */
+.navbar { background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 16px 0; }
+.nav-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.logo { font-size: 1.25rem; font-weight: 700; color: var(--primary); display: flex; align-items: center;}
+.nav-stats { display: flex; gap: 16px; font-size: 0.95rem; font-weight: 500; color: var(--text-muted);}
 
-/* Calendar */
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
-.btn-icon { background: white; border: 1px solid var(--border); padding: 5px 15px; cursor: pointer; border-radius: 5px; font-size: 1.2rem; transition: background-color 0.2s; }
-.btn-icon:hover { background: #eee; }
-.calendar { background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
-.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: #eee; text-align: center; padding: 12px 0; font-weight: bold; color: #555; }
+/* Badges */
+.badge-neutral { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem; margin-left: 4px;}
+.badge-warning { background: #fffbeb; color: #b45309; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem; margin-left: 4px;}
+.badge-success { background: #ecfdf5; color: #047857; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem; margin-left: 4px;}
+.status-badge { display: inline-block; border: 1px solid currentColor; background: transparent !important; border-radius: 4px; padding: 2px 6px; font-size: 0.8rem; font-weight: 600;}
+
+/* Buttons */
+button { display: inline-flex; align-items: center; justify-content: center; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.2s; border-radius: var(--radius-sm); }
+.btn-primary { background: var(--primary); color: white; border: none; padding: 8px 16px; font-size: 0.95rem; box-shadow: var(--shadow-sm); }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; font-size: 0.95rem; box-shadow: var(--shadow-sm); }
+.btn-success:hover { background: var(--success-hover); }
+.btn-secondary { background: white; color: var(--text-main); border: 1px solid var(--border); padding: 8px 16px; font-size: 0.95rem; }
+.btn-secondary:hover { background: #f8fafc; }
+.btn-outline { background: transparent; color: var(--secondary); border: 1px solid var(--secondary); padding: 8px 16px; font-size: 0.95rem; }
+.btn-outline:hover { background: #eff6ff; }
+.icon-btn { background: transparent; border: none; padding: 6px; border-radius: 4px; color: var(--text-muted); }
+.icon-btn:hover { background: #f1f5f9; color: var(--text-main); }
+.text-danger:hover { color: var(--danger) !important; background: #fef2f2; }
+.text-primary:hover { color: var(--secondary) !important; background: #eff6ff; }
+
+/* --- Calendar --- */
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px 0; }
+.month-title { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+.btn-icon { background: var(--bg-surface); border: 1px solid var(--border); padding: 8px; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); color: var(--text-main);}
+.btn-icon:hover { background: #f1f5f9; }
+
+.calendar-card { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--border); }
+.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: #f8fafc; text-align: center; padding: 12px 0; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); }
 .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
 
-.day-cell { min-height: 110px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5px 0; cursor: pointer; transition: background-color 0.2s; position: relative; }
-.day-cell:hover { background: #f0f8ff; /* 加上淺藍色 Hover 效果，讓點擊區域更明顯 */ }
-.day-cell.empty { background: #fafafa; cursor: default; }
-.day-cell.empty:hover { background: #fafafa; }
+.day-cell { min-height: 120px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px 0; cursor: pointer; transition: background-color 0.2s; position: relative; }
+.day-cell:nth-child(7n) { border-right: none; }
+.day-cell:hover { background: #f1f5f9; }
+.day-cell.empty { background: #f8fafc; cursor: default; }
 
-.day-number { font-weight: bold; margin-bottom: 5px; display: block; padding: 0 8px; color: #666;}
-.today .day-number { margin-left: 8px; padding: 0; background: var(--primary); color: white; border-radius: 50%; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.day-number { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block; padding: 0 10px; color: var(--text-muted);}
+.today .day-number { margin-left: 10px; padding: 0; background: var(--secondary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #eff6ff; }
 
-/* Gantt Chart Bars */
+/* Gantt Chart Bars (企業級扁平化) */
 .event-bar-wrapper { padding: 2px 0; }
-.event-bar { font-size: 0.75rem; color: white; height: 22px; line-height: 22px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-.bar-start { margin-left: 5px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; padding-left: 8px; }
+.event-bar { font-size: 0.75rem; color: white; height: 22px; line-height: 22px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
+.bar-start { margin-left: 6px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; padding-left: 8px; }
 .bar-middle { width: 100%; padding-left: 8px; }
-.bar-end { margin-right: 5px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; padding-left: 8px; }
-.bar-single { margin: 0 5px; border-radius: 4px; padding: 0 8px; }
+.bar-end { margin-right: 6px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; padding-left: 8px; }
+.bar-single { margin: 0 6px; border-radius: 4px; padding: 0 8px; }
 
-.bar-processing { background-color: #e67e22; } 
-.bar-replied { background-color: var(--success); } 
+.bar-processing { background-color: var(--warning); color: #fff; } 
+.bar-replied { background-color: var(--secondary); color: #fff;} 
+.bar-closed { background-color: var(--text-muted); color: #fff;} 
 
-/* Modals */
-/* ★ 新增：淡入動畫 */
-.modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 100; opacity: 1; transition: opacity 0.2s ease-in-out; }
+/* --- Modals --- */
+.modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; align-items: center; z-index: 100; opacity: 1; transition: opacity 0.2s; }
+.modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); }
 .modal.hidden { opacity: 0; pointer-events: none; }
-.modal-content { background: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 12px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: translateY(0); transition: transform 0.2s ease-in-out; }
-.modal.hidden .modal-content { transform: translateY(-20px); }
 
-.close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #888; transition: color 0.2s;}
-.close-btn:hover { color: #333; }
-.form-group { margin-bottom: 15px; }
-.form-row { display: flex; gap: 15px; }
-.form-row .form-group { flex: 1; }
-label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem;}
+.modal-content { background: var(--bg-surface); width: 100%; max-width: 550px; border-radius: var(--radius-lg); position: relative; max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); transform: scale(1); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); margin: 20px;}
+.modal.hidden .modal-content { transform: scale(0.95); }
+.modal-lg { max-width: 650px; }
 
-/* ★ 新增：表單輸入框美化與 Focus 光暈 */
-input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; }
-input:focus, textarea:focus, select:focus { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { font-size: 1.25rem; font-weight: 600; color: var(--primary); }
+.close-btn { background: transparent; border: none; font-size: 1.5rem; line-height: 1; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
+.close-btn:hover { background: #f1f5f9; color: var(--text-main); }
 
-/* Cases List */
-.case-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 15px; margin-bottom: 15px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
-.case-item h4 { margin-bottom: 8px; color: var(--primary); }
-.case-text-box { background: #ffffff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 6px; margin-top: 10px; max-height: 200px; overflow-y: auto; }
-.case-text-box.reply-box { background: #e0f7fa; border-color: #b2ebf2; }
-.pre-wrap { white-space: pre-wrap; word-wrap: break-word; font-size: 0.95rem; color: #444; line-height: 1.6; margin-top: 5px; }
+.modal-body { padding: 24px; overflow-y: auto; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; background: #f8fafc; border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
 
-/* ★ 新增：美化 Scrollbar (僅適用於 webkit 瀏覽器) */
-.case-text-box::-webkit-scrollbar, .modal-content::-webkit-scrollbar { width: 8px; }
-.case-text-box::-webkit-scrollbar-track, .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-.case-text-box::-webkit-scrollbar-thumb, .modal-content::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-.case-text-box::-webkit-scrollbar-thumb:hover, .modal-content::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+/* Forms */
+.form-group { margin-bottom: 16px; }
+.form-row { display: flex; gap: 16px; }
+label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: var(--text-main);}
+input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.95rem; color: var(--text-main); background: var(--bg-surface); transition: all 0.2s; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+input::placeholder, textarea::placeholder { color: #94a3b8; }
 
-.btn-danger { background-color: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.2s;}
-.btn-danger:hover { background-color: #c0392b; }
+/* Cases List inside Modal */
+.cases-list-container { display: flex; flex-direction: column; gap: 16px; }
+.case-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm); }
+.case-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.case-title { font-size: 1.15rem; font-weight: 600; color: var(--primary); line-height: 1.4; padding-right: 15px;}
+.case-actions { display: flex; gap: 4px; }
+
+.case-meta { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px; background: #f8fafc; padding: 10px 12px; border-radius: var(--radius-sm);}
+.case-meta strong { color: var(--text-main); font-weight: 500; width: 70px; display: inline-block;}
+
+.case-text-box { margin-top: 16px; }
+.box-title { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px; }
+.pre-wrap { white-space: pre-wrap; word-wrap: break-word; font-size: 0.95rem; line-height: 1.6; color: var(--text-main); background: #f8fafc; padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 250px; overflow-y: auto;}
+
+.reply-box .box-title { color: var(--secondary); }
+.reply-box .pre-wrap { background: #eff6ff; border-color: #bfdbfe; color: #1e3a8a; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

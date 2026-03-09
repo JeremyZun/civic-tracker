@@ -69,11 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 else barClass += 'bar-middle';
                 
                 let colorClass = 'bar-processing';
-                if(evt.status === 'replied' || evt.status === 'closed') colorClass = 'bar-replied';
+                if(evt.status === 'replied') colorClass = 'bar-replied';
+                if(evt.status === 'closed') colorClass = 'bar-closed';
 
                 let label = '&nbsp;';
-                if (isStart) label = `📤 ${evt.target}`;
-                else if (isEnd) label = `🎯 期限`;
+                if (isStart) label = `${evt.target}`;
 
                 tagsHTML += `
                 <div class="event-bar-wrapper">
@@ -115,8 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const replyInput = document.getElementById('input-reply-date');
         
         submitInput.value = dateStr;
-        
-        // ★ 新增 UX：防止回覆日設得比送出日還要早
         replyInput.min = dateStr; 
 
         const submitDateObj = new Date(dateStr);
@@ -129,34 +127,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. 開啟該日詳情 Modal
     function openDayModal(dateStr, dayEvents) {
-        document.getElementById('day-modal-title').innerText = `📅 ${dateStr} 相關案件`;
+        document.getElementById('day-modal-title').innerText = `${dateStr} 專案紀錄`;
         const listContainer = document.getElementById('day-cases-list');
         
-        listContainer.innerHTML = dayEvents.map(evt => `
-            <div class="case-item">
-                <h4>${evt.title}</h4>
-                <p><strong>對象:</strong> ${evt.target}</p>
-                <p><strong>期間:</strong> ${evt.submitDate} ~ ${evt.expectedReplyDate}</p>
-                <p><strong>狀態:</strong> ${evt.status === 'processing' ? '⏳ 處理中' : (evt.status === 'closed' ? '📁 已結案' : '✅ 已回覆')}</p>
+        listContainer.innerHTML = dayEvents.map(evt => {
+            let statusBadge = '';
+            if(evt.status === 'processing') statusBadge = '<span class="status-badge badge-warning">進行中</span>';
+            else if(evt.status === 'replied') statusBadge = '<span class="status-badge badge-success">已回覆</span>';
+            else statusBadge = '<span class="status-badge badge-neutral">已結案</span>';
+
+            return `
+            <div class="case-card">
+                <div class="case-card-header">
+                    <h4 class="case-title">${evt.title}</h4>
+                    <div class="case-actions">
+                        <button class="icon-btn text-primary" onclick="openReplyModal('${evt.id}')" title="更新進度"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button class="icon-btn text-danger" onclick="deleteCase('${evt.id}')" title="刪除案件"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                </div>
+                <div class="case-meta">
+                    <span><strong>負責單位:</strong> ${evt.target}</span>
+                    <span><strong>排程:</strong> ${evt.submitDate} ➔ ${evt.expectedReplyDate}</span>
+                    <span><strong>狀態:</strong> ${statusBadge}</span>
+                </div>
                 
                 <div class="case-text-box">
-                    <strong>📝 陳情內容:</strong>
+                    <div class="box-title">專案內容描述</div>
                     <div class="pre-wrap">${evt.content}</div>
                 </div>
                 
                 ${evt.reply ? `
                 <div class="case-text-box reply-box">
-                    <strong>💬 官方回覆:</strong>
+                    <div class="box-title text-success">官方回覆 / 執行紀錄</div>
                     <div class="pre-wrap">${evt.reply}</div>
                 </div>
                 ` : ''}
-                
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button class="btn-primary" style="background-color: #f39c12; flex: 1;" onclick="openReplyModal('${evt.id}')">✏️ 更新進度</button>
-                    <button class="btn-danger" onclick="deleteCase('${evt.id}')">🗑️ 刪除</button>
-                </div>
             </div>
-        `).join('');
+        `}).join('');
         
         const btnAddHere = document.getElementById('btn-add-on-this-day');
         if(btnAddHere) {
@@ -168,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 刪除案件
     window.deleteCase = function(id) {
-        if (confirm('確定要刪除這個案件嗎？這個動作無法復原喔！')) {
+        if (confirm('確定要移除此專案紀錄嗎？操作無法復原。')) {
             cases = cases.filter(c => c.id !== id);
             localStorage.setItem('civic_cases', JSON.stringify(cases));
             updateStats();
@@ -177,20 +184,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 6. Topbar 按鈕：預設帶入今天
+    // 6. Topbar 按鈕
     document.getElementById('btn-open-add').addEventListener('click', () => {
         const todayStr = new Date().toISOString().split('T')[0];
         openAddModal(todayStr);
     });
 
-    // 7. 當送出日期改變時，連動更新預估回覆日，並限制最小日期
+    // 7. 新增案件：連動更新預估回覆日
     document.getElementById('input-submit-date').addEventListener('change', (e) => {
         if(!e.target.value) return;
         const newSubmitDate = new Date(e.target.value);
-        
-        // ★ 防呆：更新 input-reply-date 的可選最小日期
         document.getElementById('input-reply-date').min = e.target.value;
-
         newSubmitDate.setDate(newSubmitDate.getDate() + 7);
         document.getElementById('input-reply-date').value = newSubmitDate.toISOString().split('T')[0];
     });
@@ -198,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 8. 表單送出事件 (新增)
     document.getElementById('form-add-case').addEventListener('submit', (e) => {
         e.preventDefault();
-        
         const newCase = {
             id: 'CASE-' + Date.now(),
             title: document.getElementById('input-title').value,
@@ -209,17 +212,15 @@ document.addEventListener('DOMContentLoaded', () => {
             content: document.getElementById('input-content').value,
             reply: ""
         };
-
         cases.push(newCase);
         localStorage.setItem('civic_cases', JSON.stringify(cases));
-        
         updateStats();
         renderCalendar();
         closeModal('modal-add');
         e.target.reset();
     });
 
-    // 9. 開啟「更新進度」
+    // 9. 開啟「更新進度」 (★ 核心變更：帶入並允許修改預期回覆日)
     window.openReplyModal = function(id) {
         const item = cases.find(c => c.id === id);
         if(!item) return;
@@ -227,26 +228,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-case-id').value = item.id;
         document.getElementById('edit-status').value = item.status;
         document.getElementById('edit-reply-content').value = item.reply || '';
+        
+        // 帶入舊的預估日期，並設定最小值為立案日期，防止時空錯亂
+        const editDateInput = document.getElementById('edit-reply-date');
+        editDateInput.value = item.expectedReplyDate;
+        editDateInput.min = item.submitDate;
 
         document.getElementById('modal-day-cases').classList.add('hidden');
         document.getElementById('modal-reply').classList.remove('hidden');
     };
 
-    // 10. 處理「更新進度」送出
+    // 10. 處理「更新進度」送出 (★ 核心變更：儲存新的預期回覆日)
     document.getElementById('form-reply-case').addEventListener('submit', (e) => {
         e.preventDefault(); 
         
         const id = document.getElementById('edit-case-id').value;
         const newStatus = document.getElementById('edit-status').value;
+        const newReplyDate = document.getElementById('edit-reply-date').value;
         const newReply = document.getElementById('edit-reply-content').value;
 
         const index = cases.findIndex(c => c.id === id);
         if(index !== -1) {
             cases[index].status = newStatus;
+            cases[index].expectedReplyDate = newReplyDate; // 更新展延日期
             cases[index].reply = newReply;
             
             localStorage.setItem('civic_cases', JSON.stringify(cases));
-            
             updateStats();
             renderCalendar();
             closeModal('modal-reply');
@@ -258,10 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(modalId).classList.add('hidden');
     };
 
-    // ★ 新增 UX：點擊 Modal 外圍的灰色半透明區域，自動關閉 Modal
+    // 點擊 Modal 背景自動關閉
     window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) {
-            e.target.classList.add('hidden');
+        if (e.target.classList.contains('modal-backdrop')) {
+            e.target.parentElement.classList.add('hidden');
         }
     });
 });
