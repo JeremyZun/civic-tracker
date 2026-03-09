@@ -1,0 +1,55 @@
+:root {
+    --primary: #2c3e50;
+    --secondary: #3498db;
+    --bg-color: #f4f7f6;
+    --border: #e0e0e0;
+    --text-main: #333;
+    --danger: #e74c3c;
+    --submit-color: #f39c12; /* 送出案件的顏色 */
+    --deadline-color: #e74c3c; /* 到期日的顏色 */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-main); }
+.container { max-width: 1000px; margin: 0 auto; padding: 0 15px; }
+
+/* Topbar */
+.navbar { background: var(--primary); color: white; padding: 15px 0; }
+.nav-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.logo { font-size: 1.5rem; }
+.nav-stats { display: flex; gap: 20px; font-size: 1.1rem; }
+.nav-stats .highlight { color: #f1c40f; }
+.btn-primary { background: var(--secondary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: bold;}
+.btn-primary:hover { background: #2980b9; }
+
+/* Calendar */
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+.btn-icon { background: white; border: 1px solid var(--border); padding: 5px 15px; cursor: pointer; border-radius: 5px; font-size: 1.2rem;}
+.calendar { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
+.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: #eee; text-align: center; padding: 10px 0; font-weight: bold; }
+.days-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.day-cell { min-height: 100px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5px; cursor: pointer; transition: 0.2s; }
+.day-cell:hover { background: #f9f9f9; }
+.day-cell.empty { background: #fafafa; cursor: default; }
+.day-number { font-weight: bold; margin-bottom: 5px; display: block; }
+.today .day-number { background: var(--primary); color: white; border-radius: 50%; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Event Indicators in Calendar */
+.event-tag { font-size: 0.75rem; padding: 3px 5px; border-radius: 3px; margin-bottom: 3px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag-submit { background: var(--submit-color); }
+.tag-deadline { background: var(--deadline-color); }
+
+/* Forms & Modals */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+.modal:not(.hidden) { display: flex; }
+.modal-content { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 8px; position: relative; max-height: 90vh; overflow-y: auto;}
+.close-btn { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; }
+.form-group { margin-bottom: 15px; }
+.form-row { display: flex; gap: 15px; }
+.form-row .form-group { flex: 1; }
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+
+/* Cases List in Modal */
+.case-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+.case-item h4 { margin-bottom: 5px; }

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Tracker | 陳情日曆系統</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-content">
+            <h1 class="logo">🏛️ Civic Tracker</h1>
+            <div class="nav-stats">
+                <span>總案件: <b id="stat-total">0</b></span>
+                <span class="highlight">處理中: <b id="stat-processing">0</b></span>
+            </div>
+            <button id="btn-open-add" class="btn-primary">＋ 新增案件</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="calendar-header">
+            <button id="btn-prev-month" class="btn-icon">◀</button>
+            <h2 id="current-month-year">2026年 3月</h2>
+            <button id="btn-next-month" class="btn-icon">▶</button>
+        </div>
+
+        <div class="calendar">
+            <div class="weekdays">
+                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div id="calendar-days" class="days-grid">
+                </div>
+        </div>
+    </main>
+
+    <div id="modal-add" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('modal-add')">&times;</span>
+            <h2>新增陳情案件</h2>
+            <form id="form-add-case">
+                <div class="form-group">
+                    <label>案件主旨</label>
+                    <input type="text" id="input-title" required placeholder="例如：安居街水溝蓋修繕">
+                </div>
+                <div class="form-group">
+                    <label>陳情對象</label>
+                    <input type="text" id="input-target" required placeholder="例如：1999 / 某某議員">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>送出日期</label>
+                        <input type="date" id="input-submit-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>預估回覆日期</label>
+                        <input type="date" id="input-reply-date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>陳情內容</label>
+                    <textarea id="input-content" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%">儲存案件</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-day-cases" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('modal-day-cases')">&times;</span>
+            <h2 id="day-modal-title">日期</h2>
+            <div id="day-cases-list">
+            </div>
+            <div id="modal-day-cases" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('modal-day-cases')">&times;</span>
+                <h2 id="day-modal-title">日期</h2>
+                <div id="day-cases-list">
+                    </div>
+                <button id="btn-add-on-this-day" class="btn-primary" style="width:100%; margin-top:15px; background-color: #27ae60;">＋ 在這天新增案件</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
